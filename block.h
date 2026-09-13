@@ -37,6 +37,19 @@ static inline bool is_prev_alloc(block_t *block){
 static inline void set_alloc(block_t *block){
     block->header = (block->header)|(uint64_t)ALLOCATED;
 }
+static inline void set_prev_free(block_t *block){
+    block->header = (block->header)&(uint64_t)~PREV_ALLOCATED;
+}
+static inline void set_prev_alloc(block_t *block){
+    block->header = (block->header)|(uint64_t)PREV_ALLOCATED;
+    if(!is_alloc(block)){
+        *(uint64_t *)((char *)block + get_size(block) - sizeof(uint64_t)) = block->header;
+    }
+}
+static inline void set_free(block_t *block){
+    block->header = (block->header)&((uint64_t)~ALLOCATED);
+    *(uint64_t *)((char *)block +get_size(block)-sizeof(uint64_t)) = block->header;
+}
 static inline block_t *get_prev_ptr(block_t *block){ //called only if previous block is not allocated
     char *ptr = (char *)block;
     ptr-=sizeof(uint64_t); //setting the pointer at the beginning of the footer
@@ -52,4 +65,16 @@ static inline block_t *get_next_ptr(block_t *block){
     ptr+= size;
     return (block_t *)ptr;
 }
+static inline bool is_next_alloc(block_t *block){
+    block_t *next = get_next_ptr(block);
+    return is_alloc(next);
+}
+static inline void set_size(block_t *block, size_t size){ //size is set only when spliting and coalescing, so set_size changes the header and copies it into footer
+    uint64_t prev_flags = (block->header)&ALLOCATED&PREV_ALLOCATED;
+    block->header = (((uint64_t)size)|prev_flags);
+    char *ptr = (char *)block;
+    ptr += size - sizeof(uint64_t);
+    *(uint64_t *)ptr = block->header;
+}
 #endif
+//TODO look into inlines, make them set footers correctly. Also seperate set size capabilities so it is compatibile with both spliting and coalescing
