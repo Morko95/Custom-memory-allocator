@@ -1,6 +1,5 @@
 #include "free_list.h"
 #include "block.h"
-#include "malloc_defs.h"
 #include <stdint.h>
 
 static inline size_t get_bucket_idx(size_t size){

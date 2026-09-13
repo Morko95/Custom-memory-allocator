@@ -1,11 +1,15 @@
 #ifndef BLOCK_H
 #define BLOCK_H
-#include "malloc_defs.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <wchar.h>
+enum {
+    ALLOCATED = 0x1ULL,
+    PREV_ALLOCATED = 0x2ULL,
+    BODY = ~0x3ULL,
+};
 typedef struct block_t{
 
     uint64_t header;
