@@ -11,7 +11,7 @@ extern block_t *free_list[NUM_BUCKETS];
 
 void unchain_free_block(block_t *block);
 void move_block(block_t *block);
-block_t *coalesce(block_t *curr);
-block_t *split_block(block_t *block);
-block_t *find_fit(block_t *block);
+void coalesce(block_t *curr);
+void *split_block(block_t *block, size_t size);
+void *find_fit(size_t size);
 #endif
